@@ -9,10 +9,10 @@ use std::rc::Rc;
 #[derive(Debug)]
 pub struct Crab {
     // TODO: Add fields here (some in part 1, some in part 2)
-    name: String,
-    speed: u32,
-    color: Color,
-    diet: Diet,
+    pub name: String,
+    pub speed: u32,
+    pub color: Color,
+    pub diet: Diet,
 }
 
 // Do NOT implement Copy for Crab.

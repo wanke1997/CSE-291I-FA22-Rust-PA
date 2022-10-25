@@ -6,18 +6,19 @@ use std::slice::Iter;
 #[derive(Debug)]
 pub struct Beach {
     // TODO: Declare the fields of the Beach struct here.
+    pub crabs: Vec<Crab>,
 }
 
 impl Beach {
     pub fn new() -> Beach {
-        unimplemented!();
+        Beach { crabs: Vec::new() }
     }
 
     /**
      * Returns the number of crabs on the beach.
      */
     pub fn size(&self) -> usize {
-        unimplemented!();
+        self.crabs.len()
     }
 
     /**
@@ -28,15 +29,15 @@ impl Beach {
      *     - The newly added crab should be at the END of the collection.
      */
     pub fn add_crab(&mut self, crab: Crab) {
-        unimplemented!();
+        self.crabs.push(crab)
     }
 
     pub fn get_crab(&self, index: usize) -> &Crab {
-        unimplemented!();
+        &self.crabs[index]
     }
 
     pub fn crabs(&self) -> Iter<Crab> {
-        unimplemented!();
+        self.crabs.iter()
     }
 
     /**
@@ -45,14 +46,32 @@ impl Beach {
      *   - Some of a reference to the Crab with the highest speed.
      */
     pub fn get_fastest_crab(&self) -> Option<&Crab> {
-        unimplemented!();
+        if self.crabs.len()==0 {
+            None
+        } else {
+            let mut speed:u32 = self.crabs[0].speed();
+            let mut fastest_crab: &Crab = &self.crabs[0];
+            for crab in &self.crabs {
+                if crab.speed()>speed {
+                    fastest_crab = &crab;
+                    speed = crab.speed()
+                }
+            }
+            Some(fastest_crab)
+        }
     }
 
     /**
      * Returns a vector of references to the crabs with a given name.
      */
     pub fn find_crabs_by_name(&self, name: &str) -> Vec<&Crab> {
-        unimplemented!();
+        let mut res_vec:Vec<&Crab> = Vec::new();
+        for crab in &self.crabs {
+            if crab.name.eq(name) {
+                res_vec.push(crab);
+            }
+        }
+        res_vec
     }
 
     /**
@@ -61,6 +80,15 @@ impl Beach {
      * the method should panic.
      */
     pub fn breed_crabs(&mut self, i: usize, j: usize, name: String) {
-        unimplemented!();
+        if i >= self.crabs.len() || j >= self.crabs.len() {
+            panic!("breeding crabs out of bound!");
+        }
+        let baby_crab = Crab {
+            name: name,
+            speed: 1,
+            color: Color::cross(&self.crabs[i].color(), &self.crabs[j].color()),
+            diet: Diet::random_diet()
+        };
+        self.crabs.push(baby_crab);
     }
 }
