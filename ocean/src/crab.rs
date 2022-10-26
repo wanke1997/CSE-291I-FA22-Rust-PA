@@ -13,12 +13,13 @@ pub struct Crab {
     pub speed: u32,
     pub color: Color,
     pub diet: Diet,
+    pub reefs: Vec<Rc<RefCell<Reef>>>
 }
 
 // Do NOT implement Copy for Crab.
 impl Crab {
     pub fn new(name: String, speed: u32, color: Color, diet: Diet) -> Crab {
-        Crab { name: name, speed: speed, color: color, diet: diet }
+        Crab { name: name, speed: speed, color: color, diet: diet, reefs: Vec::new() }
     }
 
     pub fn name(&self) -> &str {
@@ -44,7 +45,7 @@ impl Crab {
      * Have this crab discover a new reef, adding it to its list of reefs.
      */
     pub fn discover_reef(&mut self, reef: Rc<RefCell<Reef>>) {
-        unimplemented!();
+        self.reefs.push(reef);
     }
 
     /**
@@ -57,14 +58,25 @@ impl Crab {
      * If all reefs are empty, or this crab has no reefs, return None.
      */
     fn catch_prey(&mut self) -> Option<(Box<dyn Prey>, usize)> {
-        unimplemented!();
+        let mut idx:usize = 0;
+        for reef in &self.reefs {
+            let val = reef.borrow_mut().take_prey();
+            if val.is_some() {
+                let val = val.unwrap();
+                return Some((val,idx));
+            } else {
+                idx += 1;
+            }
+        }
+        return None;
     }
 
     /**
      * Releases the given prey back into the reef at the given index.
      */
     fn release_prey(&mut self, prey: Box<dyn Prey>, reef_index: usize) {
-        unimplemented!();
+        let mut reef = self.reefs[reef_index].borrow_mut();
+        reef.add_prey(prey);
     }
 
     /**
@@ -104,7 +116,33 @@ impl Crab {
      * Note: this pseudocode reads like a terrible poem.
      */
     pub fn hunt(&mut self) -> bool {
-        unimplemented!();
+        let reefs = &self.reefs;
+        for reef in reefs {
+            let mut b_reef = reef.borrow_mut();
+            let mut buffer:Vec<Box<dyn Prey>> = Vec::new();
+            while b_reef.population()>0 {
+                let mut prey = b_reef.take_prey().unwrap();
+                let is_escape = prey.try_escape(&self);
+                if is_escape {
+                    buffer.push(prey);
+                } else {
+                    let is_edible = prey.diet().eq(&self.diet);
+                    if is_edible {
+                        for val in buffer {
+                            b_reef.add_prey(val);
+                        }
+                        return true;
+                    } else {
+                        buffer.push(prey);
+                    }
+                }
+            }
+            for val in buffer {
+                b_reef.add_prey(val);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -115,7 +153,12 @@ impl Crab {
      * up to you to figure out which ones and where. Do not make any other changes
      * to the signature.
      */
-    pub fn choose_recipe(&self, cookbook: &Cookbook) -> Option<&Recipe> {
-        unimplemented!();
+    pub fn choose_recipe<'a>(&self, cookbook: &'a Cookbook) -> Option<&'a Recipe> {
+        for recipe in cookbook.recipes() {
+            if recipe.diet().eq(&self.diet()) {
+                return Some(recipe);
+            }
+        }
+        return None;
     }
 }

@@ -87,7 +87,8 @@ impl Beach {
             name: name,
             speed: 1,
             color: Color::cross(&self.crabs[i].color(), &self.crabs[j].color()),
-            diet: Diet::random_diet()
+            diet: Diet::random_diet(),
+            reefs: Vec::new()
         };
         self.crabs.push(baby_crab);
     }
